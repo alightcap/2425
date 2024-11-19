@@ -1,0 +1,45 @@
+\documentclass{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{scratch3}
+\usepackage{ocgx2}
+\usepackage{tikz}
+\usetikzlibrary{ocgx}
+% \setscratch{scale=0.5}
+
+\title{Scratch Project 1\\Bouncing Dots}
+\author{}
+\date{}
+
+% motion #4c97ff
+% looks #9966ff
+% sound #cf63cf
+% events #ffbf00
+% control #ffab19
+% sensing #5cb1d6
+% operators #59c059
+% variables #ff8c1a
+% custom #ff6680
+
+\begin{document}
+    \maketitle
+
+    \begin{ocg}{OCG 1}{ocg1}{1}
+        first example
+    \end{ocg}
+    \switchocg{ocg1}{Button.}
+
+    % \begin{tikzpicture}
+    %     \begin{scope}[ocg={name=TikZ example,ref=tikzex}]
+    %     \fill[orange] (0,0) circle (1);
+    %     \end{scope}
+    %     \node[draw,switch ocg=tikzref] at (2,0) {Switch};
+    % \end{tikzpicture}
+        
+    
+    \begin{minipage}{0.5\linewidth}
+        \begin{scratch}
+            \blockinit{when \greenflag clicked}
+        \end{scratch}
+    \end{minipage}
+\end{document}
