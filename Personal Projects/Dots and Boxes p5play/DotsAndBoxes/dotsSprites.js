@@ -1,5 +1,5 @@
-class DotsBoxSprite {
-    constructor(box, boxData) {
+class DotsEdgeSprite {
+    constructor(edge, edgeData) {
         this.sprite = new Sprite();
 
     }
@@ -46,6 +46,4 @@ class DotsBoardSprite {
 
         return dotPositions;
     }
-
-
 }
