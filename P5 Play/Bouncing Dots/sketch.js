@@ -1,7 +1,8 @@
 // let dot;
 let dots = [];
-let numDots = 3;
-let colors = ['red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet'];
+let numDots = 15;
+// used coolors.co to generate colors palette
+let colors = ['#ccdbdc', '#80ced7', '#63c7b2', '#8e6c88'];
 
 function setup() {
 	new Canvas(800, 600);
@@ -13,7 +14,7 @@ function setup() {
 }
 
 function draw() {
-	background('lightgray');
+	background('#263d42');
 
 	for (let dot of dots) {
 		updateDot(dot)
