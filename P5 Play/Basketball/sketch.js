@@ -2,8 +2,6 @@ let player;
 let playerIdleAni;
 let playerRunAni;
 let playerSpeed = 5;
-let isGrounded = false;
-let playerJumpForce = -7;
 let gravityStrength = 10;
 let ground;
 
@@ -33,7 +31,7 @@ function draw() {
 	background('skyblue');
 
 	playerController();
-	console.log(player.joints[0]["spriteB"].overlapping(ground));
+	// console.log(player.joints[0]["spriteB"].overlapping(ground));
 }
 
 function createGround() {
@@ -44,6 +42,7 @@ function createGround() {
 	ground.h = 20;
 	ground.collider = "static";
 	ground.color = "green";
+	ground.bounciness = 0;
 	return ground;
 }
 
@@ -56,15 +55,19 @@ function createPlayer() {
 	player.w = 16;
 	player.h = 16;
 
+	player.jumpForce = -7;
+	player.bounciness = 0;
+
 	let groundSensor = new Sprite();
 	groundSensor.r = 8;
 	groundSensor.collider = 'none';
 	groundSensor.mass = 0.01;
 	groundSensor.x = player.x
-	groundSensor.y = player.y + 16;
-	groundSensor.visible = false;
+	groundSensor.y = player.y + player.height;
+	groundSensor.visible = true;
+	player.groundSensor = groundSensor;
 
-	let j = new GlueJoint(player, groundSensor);
+	let j = new GlueJoint(player, player.groundSensor);
 	j.visible = false;
 
 	player.anis["idle"] = playerIdleAni;
@@ -74,6 +77,9 @@ function createPlayer() {
 	player.rotationLock = true;
 	player.scale = 2;
 	// player.debug = true;
+
+	player.isGrounded = true;
+
 	return player;
 }
 
@@ -89,10 +95,16 @@ function playerController() {
 	}
 
 	if (kb.presses("up")) {
-		// if (isGrounded) {
-		// 	isGrounded = false;
-		player.vel.y = playerJumpForce;
-		// }
+		if (player.isGrounded) {
+			player.isGrounded = false;
+			player.vel.y = player.jumpForce;
+		}
+	}
+
+	if (player.groundSensor.overlapping(ground)) {
+		if (player.vel.y > 0) {
+			player.isGrounded = true;
+		}
 	}
 
 	inputVector.normalize().mult(playerSpeed);
