@@ -4,6 +4,9 @@ let playerRunAni;
 let playerSpeed = 5;
 let gravityStrength = 10;
 let ground;
+let basketball;
+let basketballImg;
+
 
 function preload() {
 	playerIdleAni = loadAni(
@@ -17,6 +20,8 @@ function preload() {
 		{ frameSize: [24, 24], frames: 6 }
 	);
 	playerRunAni.frameDelay = 6;
+
+	basketballImg = "assets/basketball.png";
 }
 
 function setup() {
@@ -25,6 +30,7 @@ function setup() {
 
 	player = createPlayer();
 	ground = createGround();
+	basketball = createBasketball();
 }
 
 function draw() {
@@ -34,12 +40,23 @@ function draw() {
 	// console.log(player.joints[0]["spriteB"].overlapping(ground));
 }
 
+function createBasketball() {
+	let basketball = new Sprite();
+	// basketball.debug = true;
+	basketball.img = basketballImg;
+	basketball.radius = 10;
+	basketball.bounciness = 0.67;
+	basketball.overlaps(player);
+
+	return basketball;
+}
+
 function createGround() {
 	let ground = new Sprite();
 	ground.x = width / 2;
 	ground.y = height;
 	ground.w = width;
-	ground.h = 20;
+	ground.h = 40;
 	ground.collider = "static";
 	ground.color = "green";
 	ground.bounciness = 0;
@@ -64,7 +81,7 @@ function createPlayer() {
 	groundSensor.mass = 0.01;
 	groundSensor.x = player.x
 	groundSensor.y = player.y + player.height;
-	groundSensor.visible = true;
+	groundSensor.visible = false;
 	player.groundSensor = groundSensor;
 
 	let j = new GlueJoint(player, player.groundSensor);
