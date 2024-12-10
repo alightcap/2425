@@ -15,7 +15,7 @@ function preload() {
 	);
 	playerIdleAni.frameDelay = 6;
 
-	playerRunAni = loadAni(
+	playerRunAni = loadAnimation(
 		"assets/move.png",
 		{ frameSize: [24, 24], frames: 6 }
 	);
@@ -47,6 +47,7 @@ function createBasketball() {
 	basketball.radius = 10;
 	basketball.bounciness = 0.67;
 	basketball.overlaps(player);
+	basketball.x = width / 2 + 50;
 
 	return basketball;
 }
@@ -72,8 +73,10 @@ function createPlayer() {
 	player.w = 16;
 	player.h = 16;
 
-	player.jumpForce = -7;
+	player.jumpForce = -6;
+	player.shotForce = createVector(3, -6);
 	player.bounciness = 0;
+	player.isShooting = false;
 
 	let groundSensor = new Sprite();
 	groundSensor.r = 8;
@@ -122,6 +125,24 @@ function playerController() {
 		if (player.vel.y > 0) {
 			player.isGrounded = true;
 		}
+	}
+
+	if (player.overlapping(basketball) && !player.isShooting) {
+		basketball.x = player.x;
+		basketball.y = player.y;
+		new GlueJoint(player, basketball);
+	}
+
+	if (kb.presses('space')) {
+		player.isShooting = true;
+		if (player.joints[1]) {
+			player.joints[1].remove();
+			basketball.vel = player.shotForce;
+		}
+	}
+
+	if (player.overlapped(basketball) && player.isShooting) {
+		player.isShooting = false;
 	}
 
 	inputVector.normalize().mult(playerSpeed);
