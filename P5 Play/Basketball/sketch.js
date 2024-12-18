@@ -1,7 +1,6 @@
 let player;
 let playerIdleAni;
 let playerRunAni;
-let playerSpeed = 5;
 let gravityStrength = 10;
 let ground;
 let basketball;
@@ -31,6 +30,7 @@ function setup() {
 	player = createPlayer();
 	ground = createGround();
 	basketball = createBasketball();
+	basketball.overlaps(player);
 }
 
 function draw() {
@@ -46,7 +46,6 @@ function createBasketball() {
 	basketball.img = basketballImg;
 	basketball.radius = 10;
 	basketball.bounciness = 0.67;
-	basketball.overlaps(player);
 	basketball.x = width / 2 + 50;
 
 	return basketball;
@@ -74,17 +73,19 @@ function createPlayer() {
 	player.h = 16;
 
 	player.jumpForce = -6;
-	player.shotForce = createVector(3, -6);
+	player.shotForce = createVector(3, -6);  // TODO: change to -6 so that player direction will determine ball direction
 	player.bounciness = 0;
+	player.moveSpeed = 5;
 	player.isShooting = false;
+	player.isGrounded = true;
 
 	let groundSensor = new Sprite();
-	groundSensor.r = 8;
+	groundSensor.r = 6;
 	groundSensor.collider = 'none';
-	groundSensor.mass = 0.01;
+	// groundSensor.mass = 0.01;
 	groundSensor.x = player.x
 	groundSensor.y = player.y + player.height;
-	groundSensor.visible = false;
+	groundSensor.visible = true;
 	player.groundSensor = groundSensor;
 
 	let j = new GlueJoint(player, player.groundSensor);
@@ -98,7 +99,6 @@ function createPlayer() {
 	player.scale = 2;
 	// player.debug = true;
 
-	player.isGrounded = true;
 
 	return player;
 }
@@ -116,15 +116,16 @@ function playerController() {
 
 	if (kb.presses("up")) {
 		if (player.isGrounded) {
-			player.isGrounded = false;
 			player.vel.y = player.jumpForce;
 		}
 	}
 
-	if (player.groundSensor.overlapping(ground)) {
-		if (player.vel.y > 0) {
-			player.isGrounded = true;
-		}
+	if (player.groundSensor.overlaps(ground)) {
+		player.isGrounded = true;
+	}
+
+	if (player.groundSensor.overlapped(ground)) {
+		player.isGrounded = false;
 	}
 
 	if (player.overlapping(basketball) && !player.isShooting) {
@@ -145,7 +146,7 @@ function playerController() {
 		player.isShooting = false;
 	}
 
-	inputVector.normalize().mult(playerSpeed);
+	inputVector.normalize().mult(player.moveSpeed);
 	player.vel.x = inputVector.x;
 
 	playerVisuals();

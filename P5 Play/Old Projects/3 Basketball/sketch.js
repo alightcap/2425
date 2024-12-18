@@ -213,7 +213,7 @@ function setupPlayer() {
     groundSensor.width = dino.width;
     groundSensor.height = 20;
     groundSensor.collider = "none";
-    groundSensor.visible = false;
+    groundSensor.visible = true;
 
     let j = new GlueJoint(dino, groundSensor);
     j.visible = false;
