@@ -5,10 +5,13 @@ let gravityStrength = 10;
 let ground;
 let basketball;
 let basketballImg;
+let goal;
+let score = 0;
+let scoreText;
 
 
 function preload() {
-	playerIdleAni = loadAni(
+	playerIdleAni = loadAnimation(
 		"assets/idle.png",
 		{ frameSize: [24, 24], frames: 3 }
 	);
@@ -30,14 +33,28 @@ function setup() {
 	player = createPlayer();
 	ground = createGround();
 	basketball = createBasketball();
+	goal = createGoal();
+
+	createWalls();
+	// createScoreUI();
+
 	basketball.overlaps(player);
+	basketball.overlaps(goal);
+	basketball.overlaps(goal.frontRim);
+	basketball.overlaps(goal.goalSensor);
+
+	textSize(40);
 }
 
 function draw() {
 	background('skyblue');
 
 	playerController();
-	// console.log(player.joints[0]["spriteB"].overlapping(ground));
+	if (basketball.overlaps(goal.goalSensor)) {
+		score += 1;
+	}
+
+	text('Score: ' + score, 10, 40);
 }
 
 function createBasketball() {
@@ -47,8 +64,72 @@ function createBasketball() {
 	basketball.radius = 10;
 	basketball.bounciness = 0.67;
 	basketball.x = width / 2 + 50;
+	basketball.mass = 0.01;
+	basketball.layer = 2;
 
 	return basketball;
+}
+
+function createGoal() {
+	let backboard = new Sprite();
+
+	backboard.collider = 'kinematic';
+	backboard.color = 'white';
+	backboard.x = width / 2;
+	backboard.y = height / 2;
+	backboard.width = 150;
+	backboard.height = 100;
+	backboard.layer = 1;
+
+	let leftRim = new Sprite();
+	leftRim.color = 'orange';
+	leftRim.width = 5;
+	leftRim.height = 5
+	leftRim.x = backboard.x - 20;
+	leftRim.y = backboard.y + backboard.halfHeight / 2;
+	leftRim.layer = 2;
+
+	let j1 = new GlueJoint(backboard, leftRim);
+	j1.visible = false;
+
+	let rightRim = new Sprite();
+	rightRim.color = 'orange';
+	rightRim.width = 5;
+	rightRim.height = 5;
+	rightRim.x = backboard.x + 20;
+	rightRim.y = backboard.y + backboard.halfHeight / 2;
+	rightRim.layer = 2;
+
+	let j2 = new GlueJoint(backboard, rightRim);
+	j2.visible = false;
+
+	let frontRim = new Sprite();
+	frontRim.color = 'orange';
+	frontRim.width = 40;
+	frontRim.height = 5;
+	frontRim.x = backboard.x;
+	frontRim.y = backboard.y + backboard.halfHeight / 2;
+	frontRim.layer = 3;
+
+	let j3 = new GlueJoint(backboard, frontRim);
+	j3.visible = false;
+
+	let goalSensor = new Sprite();
+	goalSensor.w = 30;
+	goalSensor.h = 1;
+	goalSensor.x = backboard.x;
+	goalSensor.y = backboard.y + backboard.halfHeight / 2;
+	goalSensor.visible = false;
+
+	let j4 = new GlueJoint(backboard, goalSensor);
+	j4.visible = false;
+
+	backboard.leftRim = leftRim;
+	backboard.rightRim = rightRim;
+	backboard.frontRim = frontRim;
+	backboard.goalSensor = goalSensor;
+
+	return backboard;
 }
 
 function createGround() {
@@ -72,9 +153,8 @@ function createPlayer() {
 	player.w = 16;
 	player.h = 16;
 
-	player.jumpForce = -6;
-	player.shotForce = createVector(3, -6);  // TODO: change to -6 so that player direction will determine ball direction
-	player.bounciness = 0;
+	player.jumpForce = 100;
+	player.shotForce = 5;
 	player.moveSpeed = 5;
 	player.isShooting = false;
 	player.isGrounded = true;
@@ -82,25 +162,44 @@ function createPlayer() {
 	let groundSensor = new Sprite();
 	groundSensor.r = 6;
 	groundSensor.collider = 'none';
-	// groundSensor.mass = 0.01;
 	groundSensor.x = player.x
-	groundSensor.y = player.y + player.height;
-	groundSensor.visible = true;
+	groundSensor.y = player.y + 1.5 * player.height;
+	groundSensor.visible = false;
 	player.groundSensor = groundSensor;
 
 	let j = new GlueJoint(player, player.groundSensor);
 	j.visible = false;
 
-	player.anis["idle"] = playerIdleAni;
-	player.anis["move"] = playerRunAni;
+	player.addAni("idle", playerIdleAni);
+	player.addAni("move", playerRunAni);
 	player.changeAni("idle");
 
+	player.bounciness = 0;
+	player.friction = 0;
 	player.rotationLock = true;
-	player.scale = 2;
+	player.scale = 3;
 	// player.debug = true;
 
 
 	return player;
+}
+
+function createWalls() {
+	let leftWall = new Sprite();
+	leftWall.x = 0;
+	leftWall.y = height / 2;
+	leftWall.width = 20;
+	leftWall.height = height;
+	leftWall.collider = 'static';
+	leftWall.visible = false;
+
+	let rightWall = new Sprite();
+	rightWall.x = width;
+	rightWall.y = height / 2;
+	rightWall.width = 20;
+	rightWall.height = height;
+	rightWall.collider = 'static';
+	rightWall.visible = false;
 }
 
 function playerController() {
@@ -116,7 +215,9 @@ function playerController() {
 
 	if (kb.presses("up")) {
 		if (player.isGrounded) {
-			player.vel.y = player.jumpForce;
+			player.bearing = -90;
+			player.applyForce(player.jumpForce);
+			// player.vel.y = player.jumpForce;
 		}
 	}
 
@@ -138,7 +239,15 @@ function playerController() {
 		player.isShooting = true;
 		if (player.joints[1]) {
 			player.joints[1].remove();
-			basketball.vel = player.shotForce;
+			basketball.bearing = -60;
+			let torque = -1;
+			if (player.mirror.x) {
+				basketball.bearing = -120;
+				torque = 1;
+			}
+
+			basketball.applyTorque(torque);
+			basketball.applyForce(player.shotForce);
 		}
 	}
 
