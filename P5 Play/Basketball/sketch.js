@@ -51,7 +51,10 @@ function draw() {
 
 	playerController();
 	if (basketball.overlaps(goal.goalSensor)) {
-		score += 1;
+		if (basketball.vel.y > 0) {
+			score += 1;
+			moveGoal();
+		}
 	}
 
 	text('Score: ' + score, 10, 40);
@@ -200,6 +203,12 @@ function createWalls() {
 	rightWall.height = height;
 	rightWall.collider = 'static';
 	rightWall.visible = false;
+}
+
+function moveGoal() {
+	let x = random(100, width - 100);
+	let y = random(300, 400);
+	goal.moveTo(x, y, 5);
 }
 
 function playerController() {
