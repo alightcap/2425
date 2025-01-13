@@ -1,3 +1,7 @@
+let asteroids;
+let bigAsteroidImg;
+let medAsteroidImg;
+let smAsteroidImg;
 let backgroundImg;
 let lasers;
 let laserImg;
@@ -18,21 +22,26 @@ function preload() {
 	// shipImg = loadImage('assets/ship.png');
 	shipImg = loadImage('assets/playerShip1_green.png');
 	laserImg = loadImage('assets/laserGreen10.png');
+	bigAsteroidImg = loadImage('assets/meteorBrown_big1.png');
+	medAsteroidImg = loadImage('assets/meteorBrown_med1.png');
+	smAsteroidImg = loadImage('assets/meteroBrown_tiny1.png');
 }
 
 function setup() {
 	new Canvas(800, 600);
 	displayMode('centered');
 
-	planet = createPlanet();
+	// planet = createPlanet();
 	ship = createShip();
 	lasers = createLasers();
+	asteroids = createAsteroids();
 
 	lasers.overlaps(ship);
 	lasers.overlaps(lasers);
 
 	ship.fire = spawnLaser;
 	// laser = new lasers.Sprite();
+	asteroid = new asteroids.Sprite();
 }
 
 function draw() {
@@ -40,6 +49,20 @@ function draw() {
 
 	updateShip();
 	updateLasers();
+}
+
+function createAsteroids() {
+	let a = new Group();
+	a.bigImg = bigAsteroidImg;
+	a.medImg = medAsteroidImg;
+	a.smImg = smAsteroidImg;
+	a.image = a.bigImg;
+	a.debug = true;
+	a.radius = 20;
+	a.hits = 3;
+
+
+	return a
 }
 
 function createLasers() {
