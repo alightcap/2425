@@ -50,7 +50,7 @@ function draw() {
 	background('skyblue');
 
 	playerController();
-	if (basketball.overlaps(goal.goalSensor)) {
+	if (basketball.overlapped(goal.goalSensor)) {
 		if (basketball.vel.y > 0) {
 			score += 1;
 			moveGoal();
