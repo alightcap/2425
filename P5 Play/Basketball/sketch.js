@@ -245,8 +245,8 @@ function playerController() {
 	}
 
 	if (kb.presses('space')) {
-		player.isShooting = true;
 		if (player.joints[1]) {
+			player.isShooting = true;
 			player.joints[1].remove();
 			basketball.bearing = -60;
 			let torque = -1;

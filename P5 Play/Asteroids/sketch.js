@@ -75,6 +75,9 @@ function draw() {
 }
 
 function damageShip(asteroid, ship) {
+	let e = new explosions.Sprite(ship.x, ship.y);
+	e.changeAni('ship');
+
 	ship.remove();
 }
 
@@ -191,6 +194,7 @@ function spawnWave() {
 }
 
 function splitAsteroid(asteroid) {
+
 	if (asteroid.hits > 0) {
 		let a1 = new asteroids.Sprite(asteroid.x, asteroid.y);
 		a1.direction = asteroid.direction + 90;
@@ -206,7 +210,8 @@ function splitAsteroid(asteroid) {
 		a2.image = a2.images[a2.hits];
 		a2.radius = a2.radii[a2.hits];
 	}
-
+	let e = new explosions.Sprite(asteroid.x, asteroid.y);
+	e.changeAni('asteroid');
 	asteroid.remove();
 }
 
