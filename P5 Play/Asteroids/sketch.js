@@ -28,7 +28,6 @@ function preload() {
 	bigAsteroidImg = loadImage('assets/meteorBrown_big1.png');
 	medAsteroidImg = loadImage('assets/meteorBrown_med1.png');
 	smAsteroidImg = loadImage('assets/meteorBrown_tiny1.png');
-
 	explosionSheet = loadImage('assets/explosion sheet.png');
 }
 
@@ -56,10 +55,10 @@ function setup() {
 
 	waveNumber = 0;
 
-	let e = new explosions.Sprite();
-	e.x = 100;
-	e.y = 100;
-	e.changeAni('asteroid');
+	// let e = new explosions.Sprite();
+	// e.x = 100;
+	// e.y = 100;
+	// e.changeAni('asteroid');
 }
 
 function draw() {
