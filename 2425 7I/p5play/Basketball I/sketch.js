@@ -3,6 +3,8 @@ let playerIdleAnimation;
 let playerRunAnimation;
 let gravityStrength;
 let ground;
+let basketball;
+let basketballImg;
 
 function preload() {
 	playerIdleAnimation = loadAni(
@@ -16,6 +18,8 @@ function preload() {
 		{ frameSize: [24, 24], frames: 6 }
 	)
 	playerRunAnimation.frameDelay = 6;
+
+	basketballImg = loadImage('assets/basketball.png');
 }
 
 function setup() {
@@ -27,12 +31,30 @@ function setup() {
 
 	player = createPlayer();
 	ground = createGround();
+	basketball = createBasketball();
+	createWalls();
+
+	player.overlaps(basketball);
 }
 
 function draw() {
 	background('skyblue');
 
 	playerController();
+}
+
+function createBasketball() {
+	let b = new Sprite();
+	b.img = basketballImg;
+
+	b.x = width / 2 + 50;
+
+	b.scale = 2;
+	b.radius = 10;
+	b.bounciness = 0.67;
+	b.mass = 1;
+
+	return b;
 }
 
 function createGround() {
@@ -54,12 +76,16 @@ function createPlayer() {
 
 	p.moveSpeed = 5;
 	p.xScale = 5;
-	p.jumpForce = 50;
+	p.jumpForce = 5000;
+	p.isGrounded = false;
+	p.shotForce = 500;
+	p.isShooting = false;
 
 	p.width = 9;
 	p.height = 9;
 	p.bounciness = 0;
 	p.bearing = -90;
+	p.mass = 10;
 
 	p.scale = p.xScale;
 	p.addAni('run', playerRunAnimation);
@@ -80,6 +106,24 @@ function createPlayer() {
 	return p;
 }
 
+function createWalls() {
+	let leftWall = new Sprite();
+	leftWall.x = 0;
+	leftWall.y = height / 2;
+	leftWall.w = 20;
+	leftWall.h = height;
+	leftWall.collider = 'static';
+	leftWall.visible = false;
+
+	let rightWall = new Sprite();
+	rightWall.x = width;
+	rightWall.y = height / 2;
+	rightWall.w = 20;
+	rightWall.h = height;
+	rightWall.collider = 'static';
+	rightWall.visible = false;
+}
+
 function playerController() {
 	let inputX = 0;
 
@@ -92,7 +136,39 @@ function playerController() {
 	}
 
 	if (kb.presses('up')) {
-		player.applyForce(player.jumpForce);
+		if (player.isGrounded) {
+			player.isGrounded = false;
+			player.applyForce(player.jumpForce);
+		}
+	}
+
+	if (kb.presses('space')) {
+		if (player.joints[1]) {
+			player.isShooting = true;
+			player.joints[1].remove();
+			basketball.bearing = -60;
+			let torque = -1;
+			if (player.scale.x < 0) {
+				basketball.bearing = -120;
+				torque = 1;
+			}
+			basketball.applyTorque(torque);
+			basketball.applyForce(player.shotForce);
+		}
+	}
+
+	if (player.overlapped(basketball)) {
+		player.isShooting = false;
+	}
+
+	if (player.groundSensor.overlaps(ground)) {
+		player.isGrounded = true;
+	}
+
+	if (player.overlaps(basketball) && !player.isShooting) {
+		basketball.x = player.x;
+		basketball.y = player.y;
+		new GlueJoint(player, basketball);
 	}
 
 	player.vel.x = inputX * player.moveSpeed;
