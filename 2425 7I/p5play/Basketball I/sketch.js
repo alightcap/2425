@@ -34,8 +34,11 @@ function setup() {
 	ground = createGround();
 	basketball = createBasketball();
 	createWalls();
+	goal = createGoal();
 
 	player.overlaps(basketball);
+	basketball.overlaps(goal);
+	basketball.overlaps(goal.frontRim);
 }
 
 function draw() {
@@ -54,6 +57,44 @@ function createBasketball() {
 	b.radius = 10;
 	b.bounciness = 0.67;
 	b.mass = 1;
+
+	return b;
+}
+
+function createGoal() {
+	let b = new Sprite();
+
+	b.collider = 'kinematic';
+	b.color = 'white';
+	b.x = width / 2 + 50;
+	b.y = height / 2;
+	b.width = 150;
+	b.height = 100;
+	b.layer = -1;
+
+	let leftRim = new Sprite();
+	leftRim.color = 'orange';
+	leftRim.diameter = 5;
+	leftRim.x = b.x - 20;
+	leftRim.y = b.y + b.halfHeight / 2;
+	new GlueJoint(b, leftRim);
+
+	let rightRim = new Sprite();
+	rightRim.color = 'orange';
+	rightRim.diameter = 5;
+	rightRim.x = b.x + 20;
+	rightRim.y = b.y + b.halfHeight / 2;
+	new GlueJoint(b, rightRim);
+
+	let frontRim = new Sprite();
+	frontRim.color = 'orange';
+	frontRim.width = 40;
+	frontRim.height = 5;
+	frontRim.x = b.x;
+	frontRim.y = b.y + b.halfHeight / 2;
+	new GlueJoint(b, frontRim);
+
+	b.frontRim = frontRim;
 
 	return b;
 }
