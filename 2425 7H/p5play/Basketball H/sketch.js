@@ -5,6 +5,7 @@ let gravityStrength;
 let ground;
 let basketball;
 let basketballImg;
+let goal;
 
 function preload() {
 	playerIdleAnim = loadAni(
@@ -33,6 +34,8 @@ function setup() {
 	player = createPlayer();
 	ground = createGround();
 	basketball = createBasketball();
+	createWalls();
+	goal = createGoal();
 
 	player.overlaps(basketball);
 }
@@ -55,6 +58,12 @@ function createBasketball() {
 	b.mass = 1;
 
 	return b;
+}
+
+function createGoal() {
+	let g = new Sprite();
+
+	return g;
 }
 
 function createGround() {
@@ -107,6 +116,27 @@ function createPlayer() {
 	return p;
 }
 
+function createWalls() {
+	let leftWall = new Sprite();
+	leftWall.x = 0;
+	leftWall.y = height / 2;
+	leftWall.width = 20;
+	leftWall.height = height;
+	leftWall.collider = 'static';
+	leftWall.friction = 0;
+	leftWall.visible = false;
+
+
+	let rightWall = new Sprite();
+	rightWall.x = width;
+	rightWall.y = height / 2;
+	rightWall.width = 20;
+	rightWall.height = height;
+	rightWall.collider = 'static';
+	rightWall.friction = 0;
+	rightWall.visible = false;
+}
+
 function playerController() {
 	let inputX = 0;
 
@@ -130,6 +160,13 @@ function playerController() {
 			player.isShooting = true;
 			player.joints[1].remove();
 			basketball.bearing = -60;
+			let torque = -1;
+			basketball.vel.mult(0);
+			if (player.scale.x < 0) {
+				basketball.bearing = -120;
+				torque = 1;
+			}
+			basketball.applyTorque(torque);
 			basketball.applyForce(player.shotForce);
 		}
 	}

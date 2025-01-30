@@ -5,6 +5,7 @@ let gravityStrength;
 let ground;
 let basketball;
 let basketballImg;
+let goal;
 
 function preload() {
 	playerIdleAnimation = loadAni(
@@ -152,6 +153,7 @@ function playerController() {
 				basketball.bearing = -120;
 				torque = 1;
 			}
+			basketball.vel.mult(0);
 			basketball.applyTorque(torque);
 			basketball.applyForce(player.shotForce);
 		}
