@@ -36,7 +36,7 @@ function setup() {
 	createWalls();
 	goal = createGoal();
 
-	player.overlaps(basketball);
+	basketball.overlaps(player);
 	basketball.overlaps(goal);
 	basketball.overlaps(goal.frontRim);
 }
@@ -142,6 +142,7 @@ function createPlayer() {
 	g.visible = false;
 
 	p.groundSensor = g;
+
 	let j = new GlueJoint(p, p.groundSensor);
 	j.visible = false;
 
