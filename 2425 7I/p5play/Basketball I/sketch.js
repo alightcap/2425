@@ -6,6 +6,7 @@ let ground;
 let basketball;
 let basketballImg;
 let goal;
+let score = 0;
 
 function preload() {
 	playerIdleAnimation = loadAni(
@@ -26,6 +27,7 @@ function preload() {
 function setup() {
 	new Canvas(800, 600);
 	displayMode('centered');
+	textSize(40);
 
 	gravityStrength = 10;
 	world.gravity.y = gravityStrength;
@@ -45,6 +47,15 @@ function draw() {
 	background('skyblue');
 
 	playerController();
+
+	if (basketball.overlapped(goal.frontRim)) {
+		if (basketball.vel.y > 0) {
+			score++;
+			moveGoal();
+		}
+	}
+
+	text('Score: ' + score, 10, 40);
 }
 
 function createBasketball() {
@@ -165,6 +176,12 @@ function createWalls() {
 	rightWall.h = height;
 	rightWall.collider = 'static';
 	rightWall.visible = false;
+}
+
+function moveGoal() {
+	let x = random(100, width - 100);
+	let y = random(height / 2, 3 * height / 4);
+	goal.moveTo(x, y, 5);
 }
 
 function playerController() {
