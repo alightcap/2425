@@ -127,20 +127,20 @@ function createGround() {
 function createPlayer() {
 	let p = new Sprite();
 
-	p.moveSpeed = 5;
-	p.xScale = 5;
-	p.jumpForce = 5000;
 	p.isGrounded = false;
-	p.shotForce = 500;
 	p.isShooting = false;
+	p.jumpForce = 5000;
+	p.moveSpeed = 5;
+	p.shotForce = 500;
+	p.xScale = 5;
 
-	p.width = 9;
-	p.height = 9;
-	p.bounciness = 0;
 	p.bearing = -90;
+	p.bounciness = 0;
+	p.height = 9;
 	p.mass = 10;
-
 	p.scale = p.xScale;
+	p.width = 9;
+
 	p.addAni('run', playerRunAnimation);
 	p.addAni('idle', playerIdleAnimation);
 	// p.debug = true;
