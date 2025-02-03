@@ -6,6 +6,7 @@ let ground;
 let basketball;
 let basketballImg;
 let goal;
+let score = 0;
 
 function preload() {
 	playerIdleAnim = loadAni(
@@ -38,12 +39,25 @@ function setup() {
 	goal = createGoal();
 
 	player.overlaps(basketball);
+	basketball.overlaps(goal);
+	basketball.overlaps(goal.rim);
+	basketball.overlaps(goal.goalSensor);
+
+	textSize(40);
 }
 
 function draw() {
 	background('skyblue');
 
 	playerController();
+	if (basketball.overlapped(goal.goalSensor)) {
+		if (basketball.vel.y > 0) {
+			score += 1;
+			moveGoal();
+		}
+	}
+
+	text('Score: ' + score, 10, 40);
 }
 
 function createBasketball() {
@@ -56,12 +70,60 @@ function createBasketball() {
 	b.radius = 10;
 	b.bounciness = 0.67;
 	b.mass = 1;
+	b.layer = 1;
 
 	return b;
 }
 
 function createGoal() {
 	let g = new Sprite();
+
+	g.collider = 'kinematic';
+	g.color = 'white';
+	g.x = width / 2 + 50;
+	g.y = height / 2;
+	g.width = 150;
+	g.height = 100;
+	g.layer = 0;
+
+	let leftRim = new Sprite();
+	leftRim.color = 'orange';
+	leftRim.diameter = 5;
+	leftRim.x = g.x - 20;
+	leftRim.y = g.y + g.halfHeight / 2;
+	leftRim.layer = 1;
+
+	new GlueJoint(g, leftRim);
+
+	let rightRim = new Sprite();
+	rightRim.color = 'orange';
+	rightRim.diameter = 5;
+	rightRim.x = g.x + 20;
+	rightRim.y = g.y + g.halfHeight / 2;
+	rightRim.layer = 1;
+
+	new GlueJoint(g, rightRim);
+
+	let frontRim = new Sprite();
+	frontRim.color = 'orange';
+	frontRim.width = 40;
+	frontRim.height = 5;
+	frontRim.x = g.x;
+	frontRim.y = g.y + g.halfHeight / 2;
+	frontRim.layer = 2;
+
+	new GlueJoint(g, frontRim);
+	g.rim = frontRim;
+
+	let goalSensor = new Sprite();
+	goalSensor.width = 30;
+	goalSensor.height = 1;
+	goalSensor.x = g.x;
+	goalSensor.y = g.y + g.halfHeight / 2;
+	goalSensor.visible = false;
+
+	new GlueJoint(g, goalSensor);
+	g.goalSensor = goalSensor;
 
 	return g;
 }
@@ -135,6 +197,12 @@ function createWalls() {
 	rightWall.collider = 'static';
 	rightWall.friction = 0;
 	rightWall.visible = false;
+}
+
+function moveGoal() {
+	let x = random(100, width - 100);
+	let y = random(height / 2, 3 * height / 4);
+	goal.moveTo(x, y, 5);
 }
 
 function playerController() {
