@@ -12,11 +12,9 @@ let tileWidth = 13;
 let tileHeight = 9
 let tileSize = 64;
 let blueIceSheet;
-let redIceSheet;
 let blueIceTiles;
-let redIceTiles;
+let lineSheet;
 let backgroundImg;
-let elementSheet;
 
 
 class StartMenuScene {
@@ -356,8 +354,7 @@ function preload() {
 	// goalTopRightCorner = loadImage('assets/element (32).png');
 	// ballImg = loadImage('assets/ball_soccer4.png');
 	blueIceSheet = loadImage('assets/groundIce_blue.png');
-	redIceSheet = loadImage('assets/groundIce_red.png');
-	elementSheet = loadImage('assets/elements.png');
+	lineSheet = loadImage('assets/groundTransparent_black.png');
 }
 
 function setup() {
@@ -375,21 +372,47 @@ function draw() {
 	background(backgroundImg);
 	// startMenu.interact();
 	// game.interact();
+	for (let rowIdx = 0; rowIdx < tileHeight + 1; rowIdx++) {
+		for (let colIdx = 0; colIdx < tileWidth + 1; colIdx++) {
+			let x = colIdx * tileSize;
+			let y = rowIdx * tileSize;
+			circle(x, y, 5);
+		}
+	}
 }
 
 function generateBackground() {
 	blueIceTiles = sliceSpriteSheet(blueIceSheet);
-	redIceTiles = sliceSpriteSheet(redIceSheet);
-	elementTiles = sliceSpriteSheet(elementSheet);
+	lineTiles = sliceSpriteSheet(lineSheet);
 
 	let img = createImage(tileWidth * tileSize, tileHeight * tileSize);
 
+	// blank ice;
 	let tile = blueIceTiles[0];
 	for (let rowIdx = 0; rowIdx < img.height / tileSize; rowIdx++) {
 		for (let colIdx = 0; colIdx < img.width / tileSize; colIdx++) {
 			img.set(colIdx * tileSize, rowIdx * tileSize, tile);
 		}
 	}
+
+	// Redlines
+	tile = lineTiles[1 * 13 + 3];
+	// tint('red');
+	for (rowIdx = 1; rowIdx < tileHeight - 1; rowIdx++) {
+		// leftGoal
+		img.set(0, rowIdx * tileSize, tile);
+		// centerLine
+		img.set(floor(tileWidth / 2) * tileSize, rowIdx * tileSize, tile);
+		// rightGoal
+		img.set((tileWidth - 1) * tileSize, rowIdx * tileSize, tile);
+	}
+
+	// tile = blueIceTiles[8 * 13 + 3];
+	// img.set(0, 0, tile);
+
+	// tile = blueIceTiles[2];
+	// img.set(1 * tileSize, 0 * tileSize, tile);
+
 	img.updatePixels();
 
 	return img;
@@ -398,8 +421,8 @@ function generateBackground() {
 function sliceSpriteSheet(img) {
 	let tiles = [];
 
-	for (let rowIdx = 0; rowIdx < (img.width / tileSize); rowIdx++) {
-		for (let colIdx = 0; colIdx < (img.height / tileSize); colIdx++) {
+	for (let rowIdx = 0; rowIdx < (img.height / tileSize); rowIdx++) {
+		for (let colIdx = 0; colIdx < (img.width / tileSize); colIdx++) {
 			let tile = img.get(colIdx * tileSize, rowIdx * tileSize, tileSize, tileSize);
 			tiles.push(tile)
 		}
