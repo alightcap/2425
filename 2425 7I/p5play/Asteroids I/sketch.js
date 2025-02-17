@@ -1,4 +1,3 @@
-let starImg;
 let starImgs = [];
 let numStars = 75;
 
@@ -51,11 +50,12 @@ function createSpaceShip() {
 	s.img = spaceShipImg;
 	s.diameter = 20;
 	s.rotation = 90;
+	s.rotationDrag = 2;
 
 	s.thrust = 10;
 	s.maxVel = 3;
 	s.rotSpeed = 0.1;
-	s.maxRotSpeed = 1;
+	s.maxRotSpeed = 1.5;
 
 	// s.debug = true;
 	s.update = () => {
