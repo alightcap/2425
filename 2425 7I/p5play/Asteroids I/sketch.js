@@ -1,9 +1,9 @@
+let starImg;
 let starImgs = [];
-let stars = [];
 let numStars = 75;
 
 let planetImg;
-// let backgroundImg;
+let backgroundImg;
 
 let spaceShip;
 let spaceShipImg;
@@ -15,6 +15,7 @@ function preload() {
 	starImgs.push(loadImage('assets/star1.png'));
 	starImgs.push(loadImage('assets/star2.png'));
 	starImgs.push(loadImage('assets/star3.png'));
+	starImg = loadImage('assets/star1.png');
 
 	planetImg = loadImage('assets/planet01.png');
 
@@ -27,18 +28,15 @@ function setup() {
 	new Canvas(800, 600);
 	displayMode('centered');
 
-	createStars();
+	backgroundImg = createBackground();
 	spaceShip = createSpaceShip();
 	asteroids = createAsteroids();
-	// backgroundImg = createBackground();
 	new asteroids.Sprite();
 }
 
 function draw() {
-	background('#222222');
-
-	drawStars();
-	image(planetImg, width / 2, height / 2);
+	// background('#222222');
+	background(backgroundImg);
 }
 
 function createAsteroids() {
@@ -122,12 +120,20 @@ function drawStars() {
 	}
 }
 
-// function createBackground() {
-// 	let b = createImage(width, height);
-//  for (let x = 0; x < width; x++){
-//    for (let y = 0; y < height; y++) {
-//      
-//    }
-//  }
-// 	return b;
-// }
+function createBackground() {
+	let b = createImage(width, height);
+	for (let x = 0; x < width; x++) {
+		for (let y = 0; y < height; y++) {
+			b.set(x, y, color('#222222'));
+		}
+	}
+	b.updatePixels();
+
+	for (let i = 0; i < numStars; i++) {
+		b.set(random(width), random(height), random(starImgs));
+	}
+
+	b.set(width / 2, height / 2, planetImg);
+
+	return b;
+}
