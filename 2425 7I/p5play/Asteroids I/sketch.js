@@ -1,7 +1,7 @@
 let starImgs = [];
 let numStars = 75;
 
-let planetImgs;
+let planetImg;
 let backgroundImg;
 
 let spaceShip;
@@ -10,17 +10,21 @@ let spaceShipImg;
 let asteroids;
 let asteroidBigImg;
 
+let lasers;
+let laserImg;
+
 function preload() {
 	starImgs.push(loadImage('assets/star1.png'));
 	starImgs.push(loadImage('assets/star2.png'));
 	starImgs.push(loadImage('assets/star3.png'));
-	starImg = loadImage('assets/star1.png');
 
 	planetImg = loadImage('assets/planet01.png');
 
 	spaceShipImg = loadImage('assets/playerShip1_green.png');
 
 	asteroidBigImg = loadImage('assets/meteorBrown_big1.png');
+
+	laserImg = loadImage('assets/laserGreen10.png');
 }
 
 function setup() {
@@ -29,20 +33,35 @@ function setup() {
 
 	backgroundImg = createBackground();
 	spaceShip = createSpaceShip();
-	asteroids = createAsteroids();
-	new asteroids.Sprite();
+	asteroids = setupAsteroids();
+	lasers = setupLasers();
+
+	// spawnAsteroid();
+
+	spaceShip.overlaps(asteroids, damageSpaceship);
+	spaceShip.overlaps(lasers);
 }
 
 function draw() {
-	// background('#222222');
 	background(backgroundImg);
 }
 
-function createAsteroids() {
-	let a = new Group();
-	a.img = asteroidBigImg;
+function createBackground() {
+	let b = createImage(width, height);
+	for (let x = 0; x < width; x++) {
+		for (let y = 0; y < height; y++) {
+			b.set(x, y, color('#222222'));
+		}
+	}
+	b.updatePixels();
 
-	return a;
+	for (let i = 0; i < numStars; i++) {
+		b.set(random(width), random(height), random(starImgs));
+	}
+
+	b.set(width / 2, height / 2, planetImg);
+
+	return b;
 }
 
 function createSpaceShip() {
@@ -55,11 +74,14 @@ function createSpaceShip() {
 	s.thrust = 6;
 	s.maxVel = 3;
 	s.rotSpeed = 0.05;
-	// s.maxRotSpeed = 1.5;
 
 	// s.debug = true;
 
 	s.update = () => {
+		if (kb.presses('space')) {
+			s.shoot();
+		}
+
 		if (kb.pressing('arrowUp')) {
 			s.applyForce(s.thrust);
 		}
@@ -91,45 +113,92 @@ function createSpaceShip() {
 			s.y += height;
 		}
 	}
+
+	s.shoot = () => {
+		spawnLaser(s.x, s.y, s.rotation);
+	}
+
 	return s;
 }
 
-function createStars() {
-	for (let i = 0; i < numStars; i++) {
-		let star = [];
-
-		let x = random(width);
-		let y = random(height);
-		let img = random(starImgs);
-
-		star.push(img);
-		star.push(x);
-		star.push(y);
-
-		stars.push(star);
-	}
+function damageSpaceship(ship, asteroid) {
+	ship.remove();
+	asteroid.remove();
 }
 
-function drawStars() {
-	for (let star of stars) {
-		image(star[0], star[1], star[2]);
-	}
+function setupAsteroids() {
+	let a = new Group();
+	a.img = asteroidBigImg;
+	a.diameter = 30;
+	// a.debug = true;
+
+	return a;
 }
 
-function createBackground() {
-	let b = createImage(width, height);
-	for (let x = 0; x < width; x++) {
-		for (let y = 0; y < height; y++) {
-			b.set(x, y, color('#222222'));
+function setupLasers() {
+	let l = new Group();
+	l.img = laserImg;
+	l.diameter = 8;
+	l.img.offset.y = 10;
+
+	// l.debug = true;
+
+	return l;
+}
+
+function spawnAsteroid() {
+	let a = new asteroids.Sprite();
+	let x = random(width);
+	let y = random(height);
+
+	while (dist(x, y, spaceShip.x, spaceShip.y) < 150) {
+		x = random(width);
+		y = random(height);
+	}
+
+	a.x = x;
+	a.y = y;
+	a.bearing = random(360);
+	a.applyForce(100);
+
+	a.update = () => {
+		if (a.x > width) {
+			a.x -= width;
+		}
+		if (a.x < 0) {
+			a.x += width;
+		}
+		if (a.y > height) {
+			a.y -= height;
+		}
+		if (a.y < 0) {
+			a.y += height;
 		}
 	}
-	b.updatePixels();
+}
 
-	for (let i = 0; i < numStars; i++) {
-		b.set(random(width), random(height), random(starImgs));
+function spawnLaser(x, y, rotation) {
+	let l = new lasers.Sprite();
+	l.x = x;
+	l.y = y;
+	l.rotation = rotation;
+	l.bearing = l.rotation - 90;
+	l.life = 60;
+
+	l.applyForce(50);
+
+	l.update = () => {
+		if (l.x > width) {
+			l.x -= width;
+		}
+		if (l.x < 0) {
+			l.x += width;
+		}
+		if (l.y > height) {
+			l.y -= height;
+		}
+		if (l.y < 0) {
+			l.y += height;
+		}
 	}
-
-	b.set(width / 2, height / 2, planetImg);
-
-	return b;
 }
