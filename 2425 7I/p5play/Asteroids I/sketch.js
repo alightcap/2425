@@ -1,7 +1,7 @@
 let starImgs = [];
 let numStars = 75;
 
-let planetImg;
+let planetImgs;
 let backgroundImg;
 
 let spaceShip;
@@ -52,33 +52,29 @@ function createSpaceShip() {
 	s.rotation = 90;
 	s.rotationDrag = 2;
 
-	s.thrust = 10;
+	s.thrust = 6;
 	s.maxVel = 3;
-	s.rotSpeed = 0.1;
-	s.maxRotSpeed = 1.5;
+	s.rotSpeed = 0.05;
+	// s.maxRotSpeed = 1.5;
 
 	// s.debug = true;
+
 	s.update = () => {
 		if (kb.pressing('arrowUp')) {
 			s.applyForce(s.thrust);
 		}
 
+		s.vel.limit(s.maxVel);
+
+		let rotDir = 0;
 		if (kb.pressing('arrowLeft')) {
-			s.applyTorque(-s.rotSpeed);
+			rotDir = -1;
 		}
 
 		if (kb.pressing('arrowRight')) {
-			s.applyTorque(s.rotSpeed);
+			rotDir = 1;
 		}
-
-		s.vel.limit(s.maxVel);
-
-		if (s.rotationSpeed < -s.maxRotSpeed) {
-			s.rotationSpeed = -s.maxRotSpeed;
-		}
-		if (s.rotationSpeed > s.maxRotSpeed) {
-			s.rotationSpeed = s.maxRotSpeed;
-		}
+		s.applyTorque(s.rotSpeed * rotDir);
 
 		s.bearing = s.rotation - 90;
 
