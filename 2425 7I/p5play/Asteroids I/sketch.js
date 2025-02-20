@@ -32,14 +32,16 @@ function setup() {
 	displayMode('centered');
 
 	backgroundImg = createBackground();
-	spaceShip = createSpaceShip();
+	spaceShip = setupSpaceShip();
 	asteroids = setupAsteroids();
 	lasers = setupLasers();
 
-	// spawnAsteroid();
+	spawnAsteroid();
 
 	spaceShip.overlaps(asteroids, damageSpaceship);
 	spaceShip.overlaps(lasers);
+	lasers.overlaps(lasers);
+	asteroids.overlaps(asteroids);
 }
 
 function draw() {
@@ -64,7 +66,7 @@ function createBackground() {
 	return b;
 }
 
-function createSpaceShip() {
+function setupSpaceShip() {
 	let s = new Sprite();
 	s.img = spaceShipImg;
 	s.diameter = 20;
@@ -100,18 +102,7 @@ function createSpaceShip() {
 
 		s.bearing = s.rotation - 90;
 
-		if (s.x > width) {
-			s.x -= width;
-		}
-		if (s.x < 0) {
-			s.x += width;
-		}
-		if (s.y > height) {
-			s.y -= height;
-		}
-		if (s.y < 0) {
-			s.y += height;
-		}
+		wrap(s);
 	}
 
 	s.shoot = () => {
@@ -140,6 +131,7 @@ function setupLasers() {
 	l.img = laserImg;
 	l.diameter = 8;
 	l.img.offset.y = 10;
+	l.life = 120;
 
 	// l.debug = true;
 
@@ -160,20 +152,10 @@ function spawnAsteroid() {
 	a.y = y;
 	a.bearing = random(360);
 	a.applyForce(100);
+	a.applyTorque(random(-5, 5));
 
 	a.update = () => {
-		if (a.x > width) {
-			a.x -= width;
-		}
-		if (a.x < 0) {
-			a.x += width;
-		}
-		if (a.y > height) {
-			a.y -= height;
-		}
-		if (a.y < 0) {
-			a.y += height;
-		}
+		wrap(a);
 	}
 }
 
@@ -183,22 +165,25 @@ function spawnLaser(x, y, rotation) {
 	l.y = y;
 	l.rotation = rotation;
 	l.bearing = l.rotation - 90;
-	l.life = 60;
 
 	l.applyForce(50);
 
 	l.update = () => {
-		if (l.x > width) {
-			l.x -= width;
-		}
-		if (l.x < 0) {
-			l.x += width;
-		}
-		if (l.y > height) {
-			l.y -= height;
-		}
-		if (l.y < 0) {
-			l.y += height;
-		}
+		wrap(l);
+	}
+}
+
+function wrap(obj) {
+	if (obj.x > width) {
+		obj.x -= width;
+	}
+	if (obj.x < 0) {
+		obj.x += width;
+	}
+	if (obj.y > height) {
+		obj.y -= height;
+	}
+	if (obj.y < 0) {
+		obj.y += height;
 	}
 }
