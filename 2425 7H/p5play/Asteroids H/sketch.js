@@ -1,6 +1,6 @@
 let starImgs = [];
 let stars = [];
-let numStars = 50;
+let numStars = 75;
 
 let planetImg;
 
@@ -10,6 +10,9 @@ let spaceShipImg;
 let asteroids;
 let asteroidImg;
 
+let lasers;
+let laserImg;
+
 function preload() {
 	starImgs.push(loadImage('assets/star1.png'));
 	starImgs.push(loadImage('assets/star2.png'));
@@ -17,6 +20,7 @@ function preload() {
 	planetImg = loadImage('assets/planet07.png');
 	spaceShipImg = loadImage('assets/playerShip1_green.png');
 	asteroidImg = loadImage('assets/meteorBrown_big1.png');
+	laserImg = loadImage('assets/laserGreen10.png');
 }
 
 function setup() {
@@ -27,8 +31,13 @@ function setup() {
 	createStars();
 	spaceShip = createSpaceShip();
 	asteroids = setupAsteroids();
+	lasers = setupLasers();
 
-	new asteroids.Sprite();
+	asteroids.overlaps(spaceShip, damageShip);
+	lasers.overlaps(spaceShip);
+	lasers.overlaps(asteroids, damageAsteroid);
+
+	spawnAsteroid();
 }
 
 function draw() {
@@ -36,6 +45,15 @@ function draw() {
 
 	drawStars();
 	image(planetImg, width / 2, height / 2);
+}
+
+function damageShip(other, spaceShip) {
+	spaceShip.remove();
+}
+
+function damageAsteroid(laser, asteroid) {
+	asteroid.remove();
+	laser.remove();
 }
 
 function createSpaceShip() {
@@ -48,6 +66,10 @@ function createSpaceShip() {
 	s.rotSpeed = 2;
 
 	s.update = () => {
+		if (kb.presses('space')) {
+			s.shoot();
+		}
+
 		if (kb.pressing('arrowUp')) {
 			s.applyForce(s.moveSpeed);
 		}
@@ -79,6 +101,10 @@ function createSpaceShip() {
 		}
 	}
 
+	s.shoot = () => {
+		spawnLaser(s.x, s.y, s.rotation);
+	}
+
 	return s;
 }
 
@@ -105,6 +131,67 @@ function drawStars() {
 function setupAsteroids() {
 	let a = new Group();
 	a.img = asteroidImg;
+	a.diameter = 30;
+
+	// a.debug = true;
 
 	return a;
+}
+
+function setupLasers() {
+	let l = new Group();
+	l.img = laserImg;
+	l.diameter = 8;
+	l.image.offset.y = 10;
+	l.life = 60;
+
+	// l.debug = true;
+
+	return l;
+}
+
+function spawnAsteroid() {
+	let a = new asteroids.Sprite();
+
+	let x = random(width);
+	let y = random(height);
+
+	while (dist(x, y, spaceShip.x, spaceShip.y) < 150) {
+		x = random(width);
+		y = random(height);
+	}
+
+	a.x = x;
+	a.y = y;
+
+	a.moveSpeed = 100;
+	a.bearing = random(360);
+	a.applyForce(a.moveSpeed);
+	a.applyTorque(random(-5, 5));
+
+	a.update = () => {
+		if (a.x > width) {
+			a.x -= width;
+		}
+		if (a.x < 0) {
+			a.x += width;
+		}
+		if (a.y > height) {
+			a.y -= height;
+		}
+		if (a.y < 0) {
+			a.y += height;
+		}
+	}
+}
+
+function spawnLaser(x, y, rotation) {
+	let l = new lasers.Sprite();
+	l.x = x;
+	l.y = y;
+	l.rotation = rotation;
+	l.bearing = rotation - 90;
+
+	l.moveSpeed = 30;
+	l.applyForce(l.moveSpeed);
 }
