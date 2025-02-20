@@ -9,9 +9,14 @@ let spaceShipImg;
 
 let asteroids;
 let asteroidBigImg;
+let asteroidMedImg;
+let asteroidSmImg;
 
 let lasers;
 let laserImg;
+
+let waveNum;
+let isGameActive;
 
 function preload() {
 	starImgs.push(loadImage('assets/star1.png'));
@@ -23,6 +28,8 @@ function preload() {
 	spaceShipImg = loadImage('assets/playerShip1_green.png');
 
 	asteroidBigImg = loadImage('assets/meteorBrown_big1.png');
+	asteroidMedImg = loadImage('assets/meteorBrown_med1.png');
+	asteroidSmImg = loadImage('assets/meteorBrown_small1.png');
 
 	laserImg = loadImage('assets/laserGreen10.png');
 }
@@ -36,16 +43,36 @@ function setup() {
 	asteroids = setupAsteroids();
 	lasers = setupLasers();
 
-	spawnAsteroid();
+	waveNum = 1;
+	isGameActive = true;
+
+	// spawnAsteroid(3, 100, 100, 90);
 
 	spaceShip.overlaps(asteroids, damageSpaceship);
 	spaceShip.overlaps(lasers);
+	// maybe this can happen in their setup functions?
 	lasers.overlaps(lasers);
 	asteroids.overlaps(asteroids);
+	lasers.overlaps(asteroids, damageAsteroid);
 }
 
 function draw() {
 	background(backgroundImg);
+	asteroidSpawner();
+}
+
+function asteroidSpawner() {
+	if (isGameActive) {
+		if (asteroids.size() <= 0) {
+			waveNum += 1;
+			for (let i = 0; i < waveNum; i++) {
+				let x = random(width);
+				let y = random(height);
+				let dir = random(360);
+				spawnAsteroid(3, x, y, dir);
+			}
+		}
+	}
 }
 
 function createBackground() {
@@ -112,14 +139,18 @@ function setupSpaceShip() {
 	return s;
 }
 
+function damageAsteroid(laser, asteroid) {
+	laser.remove();
+	asteroid.damage(/*could be a param here*/);
+}
+
 function damageSpaceship(ship, asteroid) {
 	ship.remove();
-	asteroid.remove();
 }
 
 function setupAsteroids() {
 	let a = new Group();
-	a.img = asteroidBigImg;
+	a.images = [asteroidSmImg, asteroidMedImg, asteroidBigImg];
 	a.diameter = 30;
 	// a.debug = true;
 
@@ -138,24 +169,38 @@ function setupLasers() {
 	return l;
 }
 
-function spawnAsteroid() {
+function spawnAsteroid(size, x, y, direction) {
 	let a = new asteroids.Sprite();
-	let x = random(width);
-	let y = random(height);
+	// let x = random(width);
+	// let y = random(height);
 
-	while (dist(x, y, spaceShip.x, spaceShip.y) < 150) {
-		x = random(width);
-		y = random(height);
-	}
+	// while (dist(x, y, spaceShip.x, spaceShip.y) < 150) {
+	// 	x = random(width);
+	// 	y = random(height);
+	// }
 
 	a.x = x;
 	a.y = y;
-	a.bearing = random(360);
+	a.bearing = direction;
 	a.applyForce(100);
 	a.applyTorque(random(-5, 5));
 
+	a.health = size;
+	// should adjust the size of the collider here.
+	a.img = a.images[size - 1];
+
 	a.update = () => {
 		wrap(a);
+	}
+
+	a.damage = () => {
+		a.health -= 1;
+
+		if (a.health > 0) {
+			spawnAsteroid(a.health, a.x, a.y, a.bearing - 90);
+			spawnAsteroid(a.health, a.x, a.y, a.bearing + 90);
+		}
+		a.remove();
 	}
 }
 
