@@ -50,9 +50,6 @@ function setup() {
 
 	spaceShip.overlaps(asteroids, damageSpaceship);
 	spaceShip.overlaps(lasers);
-	// maybe this can happen in their setup functions?
-	lasers.overlaps(lasers);
-	asteroids.overlaps(asteroids);
 	lasers.overlaps(asteroids, damageAsteroid);
 }
 
@@ -91,6 +88,39 @@ function createBackground() {
 	b.set(width / 2, height / 2, planetImg);
 
 	return b;
+}
+
+function damageAsteroid(laser, asteroid) {
+	laser.remove();
+	asteroid.damage(/*could be a param here*/);
+}
+
+function damageSpaceship(ship, asteroid) {
+	ship.remove();
+}
+
+function setupAsteroids() {
+	let a = new Group();
+	a.images = [asteroidSmImg, asteroidMedImg, asteroidBigImg];
+	a.diameter = 30;
+	// a.debug = true;
+
+	a.overlaps(a);
+
+	return a;
+}
+
+function setupLasers() {
+	let l = new Group();
+	l.img = laserImg;
+	l.diameter = 8;
+	l.img.offset.y = 10;
+	l.life = 120;
+
+	// l.debug = true;
+	l.overlaps(l);
+
+	return l;
 }
 
 function setupSpaceShip() {
@@ -137,36 +167,6 @@ function setupSpaceShip() {
 	}
 
 	return s;
-}
-
-function damageAsteroid(laser, asteroid) {
-	laser.remove();
-	asteroid.damage(/*could be a param here*/);
-}
-
-function damageSpaceship(ship, asteroid) {
-	ship.remove();
-}
-
-function setupAsteroids() {
-	let a = new Group();
-	a.images = [asteroidSmImg, asteroidMedImg, asteroidBigImg];
-	a.diameter = 30;
-	// a.debug = true;
-
-	return a;
-}
-
-function setupLasers() {
-	let l = new Group();
-	l.img = laserImg;
-	l.diameter = 8;
-	l.img.offset.y = 10;
-	l.life = 120;
-
-	// l.debug = true;
-
-	return l;
 }
 
 function spawnAsteroid(size, x, y, direction) {
