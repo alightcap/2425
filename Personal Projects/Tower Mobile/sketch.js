@@ -211,7 +211,7 @@ function newTower() {
 				t.numSoldiers += 1;
 			} else {
 				t.numSoldiers -= 1;
-				if (t.numSoldiers == 0) {
+				if (t.numSoldiers <= 0) {
 					if (t.owner == '') {
 						if (soldier.owner == 'player') {
 							t.remove();
